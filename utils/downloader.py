@@ -1,4 +1,6 @@
-import youtube_dl, os
+# import youtube_dl
+import yt_dlp  # fork of `youtube_dl`
+import os
 
 from .parser import parse_bookmarks
 
@@ -15,11 +17,20 @@ def download_mp3_from_urls(
 ) -> int:
     url_list = webpage_urls if type(webpage_urls) is list else [webpage_urls]
     options = {
-        "format": "bestaudio",  # bestaudio, worstaudio
+        "outtmpl": download_path + "/%(title)s.%(ext)s",
+        "format": "bestaudio",  # mp3/mp4/webm
+        "noplaylist": True,
+        "ignoreerrors": True,
         "keepvideo": False,
-        "outtmpl": download_path + "/%(title)s.mp3",
+        "postprocessors": [
+            {
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+                "preferredquality": "192",
+            }
+        ],
     }
-    youtube = youtube_dl.YoutubeDL(options)
+    youtube = yt_dlp.YoutubeDL(options)
     return youtube.download(url_list)
 
 
